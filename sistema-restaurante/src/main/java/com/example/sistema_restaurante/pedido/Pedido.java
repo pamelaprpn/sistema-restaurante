@@ -5,18 +5,23 @@ import com.example.sistema_restaurante.cardapio.Lanche;
 import java.util.ArrayList;
 
 public class Pedido {
-    int id;
-    String nomeCliente;
-    ArrayList<Lanche> itens;
+    private int numero;
+    private String nomeCliente;
+    private ArrayList<Lanche> itens;
 
 
-    public Pedido(String nomeCliente, int id){
+    public Pedido(String nomeCliente, int numero){
         setNomeCliente(nomeCliente);
-        this.id = id;
+        this.numero = numero;
+        this.itens = new ArrayList<>();
     }
 
     public String getNomeCliente() {
         return nomeCliente;
+    }
+
+    public int getNumero() {
+        return numero;
     }
 
     public void setNomeCliente(String nomeCliente) {
@@ -27,22 +32,22 @@ public class Pedido {
         this.nomeCliente = nomeCliente;
     }
 
-    public void setItens(ArrayList<Lanche> itens) {
-        this.itens = itens;
-    }
-
-    public void adicionarItem(Lanche lache){
-        itens.add(lache);
+    public void adicionarItem(Lanche lanche){
+        itens.add(lanche);
     }
 
     public ArrayList<Lanche> getItens(){
         return itens;
     }
 
-    public void calcularTotal(){
-        for(int i=0; i <= itens.size(); i ++){
-            double total = itens.get
+    public double calcularTotal(){
+        double total = 0;
+
+        for(int i=0; i < itens.size(); i ++){
+            total += itens.get(i).getPreco();
         }
+        return total;
+
     }
 
 }

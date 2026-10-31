@@ -13,15 +13,15 @@ public class Lanche {
         return nome;
     }
 
+    public double getPreco() {
+        return preco;
+    }
+
     public void setNome(String nome) {
         if(nome == null || nome.trim().isEmpty()){
             throw new IllegalArgumentException("O nome não pode ser nulo nem vazio.");
         }
         this.nome = nome;
-    }
-
-    public double getPreco() {
-        return preco;
     }
 
     public void setPreco(double preco) {
