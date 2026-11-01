@@ -26,18 +26,13 @@ public class GerenciadorPedidos {
 
         double total = 0;
 
-        System.out.println("\n--- LISTA DE PEDIDOS NO DIA ---");
-        System.out.println("Quantidade de pedidos: " + pedidos.size());
-
         for (Pedido pedido : pedidos.values()) {
-            System.out.println("\n--- Pedido: "+ pedido.getNumero() + " ---");
-            System.out.println("Nome do cliente: " + pedido.getNomeCliente());
-            System.out.println("Quantidade de lanches: " + pedido.getItens().size());
-            System.out.println("Total do pedido: " + pedido.calcularTotal());
-
             total += pedido.calcularTotal();
         }
-         return total;
+        return total;
+
+
+
 
     }
 

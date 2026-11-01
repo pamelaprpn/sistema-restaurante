@@ -1,5 +1,6 @@
 package com.example.sistema_restaurante.pedido;
 
+import com.example.sistema_restaurante.cardapio.ItemCardapio;
 import com.example.sistema_restaurante.cardapio.Lanche;
 
 import java.util.ArrayList;
@@ -7,7 +8,7 @@ import java.util.ArrayList;
 public class Pedido {
     private int numero;
     private String nomeCliente;
-    private ArrayList<Lanche> itens;
+    private ArrayList<ItemCardapio> itens;
 
 
     public Pedido(String nomeCliente, int numero){
@@ -32,11 +33,11 @@ public class Pedido {
         this.nomeCliente = nomeCliente;
     }
 
-    public void adicionarItem(Lanche lanche){
-        itens.add(lanche);
+    public void adicionarItem(ItemCardapio itemCardapio){
+        itens.add(itemCardapio);
     }
 
-    public ArrayList<Lanche> getItens(){
+    public ArrayList<ItemCardapio> getItens(){
         return itens;
     }
 
