@@ -23,7 +23,8 @@ public class MenuConsole {
             System.out.println("1 - Registrar novo pedido");
             System.out.println("2 - Listar pedidos do dia ");
             System.out.println("3 - Modificar pedido ");
-            System.out.println("4 - Fechar restaurante ");
+            System.out.println("4 - Pagar pedido");
+            System.out.println("5 - Fechar restaurante ");
             System.out.println("0 - Sair ");
 
             System.out.print("Escolha uma opção: ");
@@ -41,8 +42,12 @@ public class MenuConsole {
                     modificarPedido();
                     break;
                 case 4:
-                    fecharRestaurante();
+                    pagarPedido();
                     break;
+                case 5:
+                    if (fecharRestaurante()) {
+                        return;
+                    }
                 case 0:
                     System.out.println("Saindo....");
                     break;
@@ -173,6 +178,11 @@ public class MenuConsole {
             return;
         }
 
+        if (restauranteFacade.pedidoEstaPago(nPedido)) {
+            System.out.println("Este pedido já foi pago e não pode ser modificado!");
+            return;
+        }
+
         int opcao = -1;
 
         while (opcao != 0) {
@@ -213,7 +223,6 @@ public class MenuConsole {
                             System.out.println(e.getMessage());
                         }
                     }
-
                     case 3 -> {
                         restauranteFacade.cancelarPedido(nPedido);
                         System.out.println("Pedido cancelado!");
@@ -236,12 +245,92 @@ public class MenuConsole {
 
     }
 
-    private void fecharRestaurante(){
-        System.out.println("\n--- FECHAMENTO DO RESTAURANTE ---");
-        System.out.println("Total de Pedidos: " + restauranteFacade.getPedidos().size());
-        System.out.printf("Faturamento do dia: R$ %.2f%n", restauranteFacade.calcularTotalDoDia());
-        System.out.println("\n--- FECHAMENTO CONCLUÍDO ---");
+    private void pagarPedido(){
+        System.out.print("Digite o número do pedido que deseja pagar: ");
 
+        try {
+            int numero = Integer.parseInt(sc.nextLine().trim());
+
+            Pedido pedido = restauranteFacade.buscarPedido(numero);
+
+            if (pedido == null) {
+                System.out.println("Pedido não encontrado!");
+                return;
+            }
+
+            if (restauranteFacade.pedidoEstaPago(numero)) {
+                System.out.println("Este pedido já foi pago!");
+                return;
+            }
+
+            System.out.println("\n--- PAGAMENTO ---");
+            System.out.println("Pedido nº " + pedido.getNumero());
+            System.out.println("Cliente: " + pedido.getNomeCliente());
+            System.out.printf("Total: R$ %.2f%n", pedido.calcularTotal());
+
+            System.out.print("Deseja adicionar gorjeta? (S/N): ");
+            String resposta = sc.nextLine().trim();
+
+            double gorjeta = 0;
+
+            if (resposta.equalsIgnoreCase("S")) {
+                System.out.print("Digite o valor da gorjeta: R$ ");
+                gorjeta = Double.parseDouble(
+                        sc.nextLine().trim().replace(",", ".")
+                );
+            } else if (!resposta.equalsIgnoreCase("N")) {
+                System.out.println("Resposta inválida! Pagamento não realizado.");
+                return;
+            }
+
+            boolean registrado = restauranteFacade.pagarPedido(numero, gorjeta);
+
+            if (registrado) {
+                System.out.println("\nPagamento realizado com sucesso!");
+                System.out.printf(
+                        "Total pago: R$ %.2f%n",
+                        pedido.calcularTotal() + gorjeta
+                );
+            } else {
+                System.out.println("Este pedido já foi pago!");
+            }
+
+        } catch (NumberFormatException e) {
+            System.out.println("Digite um valor numérico válido!");
+        } catch (IllegalArgumentException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    private void exibirFechamento(){
+        System.out.println("\n===== FECHAMENTO DO RESTAURANTE =====");
+
+        System.out.printf(
+                "Total dos pedidos: R$ %.2f%n",
+                restauranteFacade.calcularTotalDoDia()
+        );
+
+        System.out.printf(
+                "Total de vendas pagas: R$ %.2f%n",
+                restauranteFacade.calcularTotalVendasPagas()
+        );
+
+        System.out.printf(
+                "Total pendente: R$ %.2f%n",
+                restauranteFacade.calcularTotalPendente()
+        );
+
+        System.out.printf(
+                "Total de gorjetas: R$ %.2f%n",
+                restauranteFacade.calcularTotalGorjetas()
+        );
+
+        System.out.println("------------------------------------");
+
+        System.out.printf(
+                "Total recebido no caixa: R$ %.2f%n",
+                restauranteFacade.calcularTotalCaixa()
+        );
     }
 
 
@@ -303,7 +392,37 @@ public class MenuConsole {
         }
     }
 
+    private boolean fecharRestaurante() {
 
+        double totalPendente = restauranteFacade.calcularTotalPendente();
+
+        if (totalPendente > 0) {
+            System.out.println("\n⚠ ATENÇÃO!");
+            System.out.printf(
+                    "Existem R$ %.2f em pedidos não pagos!%n",
+                    totalPendente
+            );
+
+            System.out.print("Deseja fechar o restaurante mesmo assim? (S/N): ");
+
+            String resposta = sc.nextLine().trim();
+
+            if (resposta.equalsIgnoreCase("N")) {
+                System.out.println("Fechamento cancelado!");
+                return false;
+            }
+
+            if (!resposta.equalsIgnoreCase("S")) {
+                System.out.println("Resposta inválida! Fechamento cancelado.");
+                return false;
+            }
+        }
+
+        exibirFechamento();
+
+        System.out.println("Restaurante fechado!");
+        return true;
+    }
 
 }
 

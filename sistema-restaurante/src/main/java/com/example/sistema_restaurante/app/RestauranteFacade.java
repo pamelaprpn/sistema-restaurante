@@ -6,6 +6,9 @@ import com.example.sistema_restaurante.cardapio.LancheFactory;
 import com.example.sistema_restaurante.pedido.GerenciadorPedidos;
 import com.example.sistema_restaurante.pedido.Pedido;
 
+import com.example.sistema_restaurante.financeiro.Caixa;
+import com.example.sistema_restaurante.financeiro.Transacao;
+
 import java.util.Collection;
 
 
@@ -13,7 +16,7 @@ public class RestauranteFacade {
     private GerenciadorPedidos gerenciador = new GerenciadorPedidos();
     private LancheFactory lancheFactory = new LancheFactory();
 
-
+    private final Caixa caixa = Caixa.getInstancia();
 
     public Pedido criarPedido(String nomeCliente){
         return gerenciador.criarPedido(nomeCliente);
@@ -57,5 +60,54 @@ public class RestauranteFacade {
 
     public Lanche personalizarLanche(Lanche lanche, int opcao) {
         return lancheFactory.personalizarLanche(lanche, opcao);
+    }
+
+    public boolean pedidoEstaPago(int numeroPedido) {
+        return caixa.pedidoEstaPago(numeroPedido);
+    }
+
+    public boolean pagarPedido(int numeroPedido, double gorjeta) {
+        Pedido pedido = gerenciador.buscarPedido(numeroPedido);
+
+        if (pedido == null) {
+            throw new IllegalArgumentException("Pedido não encontrado!");
+        }
+
+        if (gorjeta < 0) {
+            throw new IllegalArgumentException("Gorjeta inválida!");
+        }
+
+        if (pedido.getItens().isEmpty()) {
+            throw new IllegalArgumentException("Não é possível pagar um pedido vazio!");
+        }
+
+        if (caixa.pedidoEstaPago(numeroPedido)) {
+            return false;
+        }
+
+        Transacao transacao = new Transacao(
+                numeroPedido,
+                pedido.calcularTotal(),
+                gorjeta
+        );
+
+        return caixa.registrarPagamento(transacao);
+    }
+
+    public double calcularTotalVendasPagas() {
+        return caixa.calcularTotalVendas();
+    }
+
+    public double calcularTotalGorjetas() {
+        return caixa.calcularTotalGorjetas();
+    }
+
+    public double calcularTotalCaixa() {
+        return caixa.calcularTotalCaixa();
+    }
+
+    public double calcularTotalPendente() {
+        return gerenciador.calcularTotalDoDia()
+                - caixa.calcularTotalVendas();
     }
 }
