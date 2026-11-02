@@ -22,7 +22,8 @@ public class MenuConsole {
             System.out.println("\n--- RESTAURANTE  ---");
             System.out.println("1 - Registrar novo pedido");
             System.out.println("2 - Listar pedidos do dia ");
-            System.out.println("3 - Fechar restaurante ");
+            System.out.println("3 - Modificar pedido ");
+            System.out.println("4 - Fechar restaurante ");
             System.out.println("0 - Sair ");
 
             System.out.print("Escolha uma opção: ");
@@ -37,6 +38,9 @@ public class MenuConsole {
                     listarPedidosDia();
                     break;
                 case 3:
+                    modificarPedido();
+                    break;
+                case 4:
                     fecharRestaurante();
                     break;
                 case 0:
@@ -56,25 +60,36 @@ public class MenuConsole {
         System.out.println("Nome do Cliente: ");
         String nomeCliente = sc.nextLine();
 
-        Pedido pedido = restauranteFacade.criarPedido(nomeCliente);
+        Pedido pedido;
 
-        while (continuar == Resposta.S){
-            ItemCardapio lanche = null;
+        try {
+            pedido = restauranteFacade.criarPedido(nomeCliente);
+        } catch (IllegalArgumentException e) {
+            System.out.println(e.getMessage());
+            return;
+        }
 
-            while (lanche == null){
+        while (continuar == Resposta.S) {
+            Lanche lanche = null;
+
+            while (lanche == null) {
                 restauranteFacade.exibirCardapio();
 
                 System.out.print("Escolha a opção do lanche: ");
-                int opcaolanche = sc.nextInt();
-                sc.nextLine();
 
-                try{
-                    lanche = restauranteFacade.escolherlanche(opcaolanche);
-                }catch(IllegalArgumentException e){
+                try {
+                    int opcaoLanche = Integer.parseInt(sc.nextLine());
+                    lanche = restauranteFacade.escolherlanche(opcaoLanche);
+                } catch (NumberFormatException e) {
+                    System.out.println("Digite um número válido!");
+                } catch (IllegalArgumentException e) {
                     System.out.println(e.getMessage() + " Escolha uma opção válida!");
                 }
-
             }
+
+            lanche = personalizarLanche(lanche);
+
+            ItemCardapio item = lanche;
 
             int opcaoExtra = -1;
 
@@ -86,30 +101,38 @@ public class MenuConsole {
                 System.out.println("0 - Não desejo adicional");
 
                 System.out.print("Escolha uma opção: ");
-                opcaoExtra = sc.nextInt();
-                sc.nextLine();
 
-                if (opcaoExtra != 0) {
-                    try {
-                        lanche = restauranteFacade.adicionarExtra(lanche, opcaoExtra);
+                try {
+                    opcaoExtra = Integer.parseInt(sc.nextLine());
+
+                    if (opcaoExtra != 0) {
+                        item = restauranteFacade.adicionarExtra(item, opcaoExtra);
                         System.out.println("Adicional incluído!");
-                    } catch (IllegalArgumentException e) {
-                        System.out.println(e.getMessage());
                     }
+
+                } catch (NumberFormatException e) {
+                    System.out.println("Digite um número válido!");
+                } catch (IllegalArgumentException e) {
+                    System.out.println(e.getMessage());
                 }
             }
 
-            pedido.adicionarItem(lanche);
+            pedido.adicionarItem(item);
 
-            System.out.print("Deseja adicionar outro lanche? (S/N): ");
-            String entrada = sc.nextLine().toUpperCase();
+            System.out.println("Item adicionado: " + item.getDescricao());
+            System.out.printf("Preço: R$ %.2f%n", item.getPreco());
 
-            try {
-                continuar = Resposta.valueOf(entrada);
-            }catch (IllegalArgumentException e){
-                System.out.println("Resposta inválida! Digite S ou N.");
+            while (true) {
+                System.out.print("Deseja adicionar outro lanche? (S/N): ");
+                String entrada = sc.nextLine().trim().toUpperCase();
+
+                try {
+                    continuar = Resposta.valueOf(entrada);
+                    break;
+                } catch (IllegalArgumentException e) {
+                    System.out.println("Resposta inválida! Digite S ou N.");
+                }
             }
-
         }
 
     }
@@ -132,6 +155,87 @@ public class MenuConsole {
         }
     }
 
+    private void modificarPedido(){
+        System.out.println("Digite o numero do pedido que quer modificar: ");
+        int nPedido;
+
+        try {
+            nPedido = Integer.parseInt(sc.nextLine());
+        } catch (NumberFormatException e) {
+            System.out.println("Digite um número válido!");
+            return;
+        }
+
+        Pedido pedido = restauranteFacade.buscarPedido(nPedido);
+
+        if (pedido == null) {
+            System.out.println("Pedido não encontrado!");
+            return;
+        }
+
+        int opcao = -1;
+
+        while (opcao != 0) {
+            System.out.println("\n--- MODIFICAR PEDIDO ---");
+            System.out.println("Pedido nº " + pedido.getNumero());
+            System.out.println("Cliente: " + pedido.getNomeCliente());
+
+            System.out.println("1 - Acrescentar item");
+            System.out.println("2 - Remover item");
+            System.out.println("3 - Cancelar pedido");
+            System.out.println("0 - Voltar");
+            System.out.println("\nEscolha uma operação: ");
+
+            try {
+                opcao = Integer.parseInt(sc.nextLine());
+
+                switch (opcao) {
+                    case 1 -> acrescentarItem(pedido);
+                    case 2 -> {
+                        System.out.println("Itens do pedido:");
+
+                        for (int i = 0; i < pedido.getItens().size(); i++) {
+                            System.out.println((i + 1) + " - " + pedido.getItens().get(i).getDescricao());
+                        }
+
+                        System.out.println("Digite o número do item que deseja remover:");
+
+                        try {
+                            int numeroItem = Integer.parseInt(sc.nextLine());
+
+                            pedido.removerItem(numeroItem);
+
+                            System.out.println("Item removido com sucesso!");
+
+                        } catch (NumberFormatException e) {
+                            System.out.println("Digite um número válido!");
+                        } catch (IllegalArgumentException e) {
+                            System.out.println(e.getMessage());
+                        }
+                    }
+
+                    case 3 -> {
+                        restauranteFacade.cancelarPedido(nPedido);
+                        System.out.println("Pedido cancelado!");
+                        return;
+                    }
+
+                    case 0 -> System.out.println("Voltando ao menu principal...");
+
+                    default -> System.out.println("Opção inválida!");
+                }
+
+            } catch (NumberFormatException e) {
+                System.out.println("Digite um número válido!");
+            } catch (IllegalArgumentException e) {
+                System.out.println(e.getMessage());
+            }
+        }
+
+
+
+    }
+
     private void fecharRestaurante(){
         System.out.println("\n--- FECHAMENTO DO RESTAURANTE ---");
         System.out.println("Total de Pedidos: " + restauranteFacade.getPedidos().size());
@@ -139,6 +243,67 @@ public class MenuConsole {
         System.out.println("\n--- FECHAMENTO CONCLUÍDO ---");
 
     }
+
+
+    private Lanche personalizarLanche(Lanche lanche) {
+        int opcao = -1;
+
+        System.out.println("\n--- PERSONALIZAR LANCHE ---");
+
+        while (opcao != 0) {
+            System.out.println("Deseja retirar algum ingrediente?");
+            System.out.println("1 - Queijo");
+            System.out.println("2 - Alface");
+            System.out.println("3 - Tomate");
+            System.out.println("4 - Cebola");
+            System.out.println("0 - Não desejo retirar");
+
+            System.out.print("Escolha uma opção: ");
+
+            try {
+                opcao = Integer.parseInt(sc.nextLine().trim());
+
+                if (opcao != 0) {
+                    lanche = restauranteFacade.personalizarLanche(lanche, opcao);
+                    System.out.println("Ingrediente removido!");
+                }
+
+            } catch (NumberFormatException e) {
+                System.out.println("Digite um número válido!");
+            } catch (IllegalArgumentException e) {
+                System.out.println(e.getMessage());
+            }
+        }
+
+        System.out.println("Lanche personalizado: " + lanche.getDescricao());
+
+        return lanche;
+    }
+
+    private void acrescentarItem(Pedido pedido) {
+        restauranteFacade.exibirCardapio();
+
+        System.out.print("Escolha o número do lanche: ");
+
+        try {
+            int opcao = Integer.parseInt(sc.nextLine());
+
+            Lanche lanche = restauranteFacade.escolherlanche(opcao);
+
+            lanche = personalizarLanche(lanche);
+
+            pedido.adicionarItem(lanche);
+
+            System.out.println("Lanche adicionado ao pedido!");
+
+        } catch (NumberFormatException e) {
+            System.out.println("Digite um número válido!");
+        } catch (IllegalArgumentException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+
 
 }
 

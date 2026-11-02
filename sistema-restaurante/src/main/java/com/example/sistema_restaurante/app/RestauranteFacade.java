@@ -41,7 +41,21 @@ public class RestauranteFacade {
         return gerenciador.getPedidos();
     }
 
+    public Pedido buscarPedido(int numero){
+        return gerenciador.buscarPedido(numero);
+    }
+
+
+    public void cancelarPedido(int numero){
+        gerenciador.cancelarPedido(numero);
+    }
+
+
     public double calcularTotalDoDia(){
         return gerenciador.calcularTotalDoDia();
+    }
+
+    public Lanche personalizarLanche(Lanche lanche, int opcao) {
+        return lancheFactory.personalizarLanche(lanche, opcao);
     }
 }

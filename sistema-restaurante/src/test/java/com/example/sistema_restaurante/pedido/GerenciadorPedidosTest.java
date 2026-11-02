@@ -50,4 +50,17 @@ public class GerenciadorPedidosTest {
 
         assertEquals(0.00, total, 0.001);
     }
+
+//    @Test
+//    void deveCancelarPedidoERemoverDoTotal() {
+//        GerenciadorPedidos gerenciador = new GerenciadorPedidos();
+//
+//        Pedido pedido = gerenciador.criarPedido("Maria");
+//        pedido.adicionarItem(new Lanche("X-Tudo", 25.00));
+//
+//        gerenciador.cancelarPedido(pedido.getNumero());
+//
+//        assertEquals(0, gerenciador.getPedidos().size());
+//        assertEquals(0.00, gerenciador.calcularTotalDoDia(), 0.001);
+//    }
 }

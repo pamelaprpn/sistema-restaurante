@@ -17,7 +17,12 @@ public class LancheFactory {
             throw new IllegalArgumentException("Lanche inexistente.");
         }
 
-        return lanches.get(opcao - 1);
+        Lanche modelo = lanches.get(opcao - 1);
+
+        return new Lanche(
+                modelo.getDescricao(),
+                modelo.getPreco()
+        );
     }
 
     public ItemCardapio adicionarExtra(ItemCardapio item, int opcao) {
@@ -31,5 +36,19 @@ public class LancheFactory {
 
     public int quantidadeLanches() {
         return lanches.size();
+    }
+
+    public Lanche personalizarLanche(Lanche lanche, int opcao) {
+        switch (opcao) {
+            case 1 -> lanche.setQueijo(false);
+            case 2 -> lanche.setAlface(false);
+            case 3 -> lanche.setTomate(false);
+            case 4 -> lanche.setCebola(false);
+            default -> throw new IllegalArgumentException(
+                    "Ingrediente inexistente."
+            );
+        }
+
+        return lanche;
     }
 }

@@ -36,4 +36,17 @@ public class PedidoTest {
 
         assertEquals(43.00, total, 0.001);
     }
+
+//    @Test
+//    void deveRemoverItemDoPedido() {
+//        Pedido pedido = new Pedido("Maria", 1);
+//
+//        pedido.adicionarItem(new Lanche("X-Tudo", 25.00));
+//        pedido.adicionarItem(new Lanche("X-Salada", 18.00));
+//
+//        pedido.removerItem(1);
+//
+//        assertEquals(1, pedido.getItens().size());
+//        assertEquals(18.00, pedido.calcularTotal(), 0.001);
+//    }
 }

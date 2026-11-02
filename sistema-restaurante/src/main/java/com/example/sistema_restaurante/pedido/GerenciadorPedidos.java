@@ -18,6 +18,14 @@ public class GerenciadorPedidos {
         return pedidos.get(numero);
     }
 
+    public void cancelarPedido(int numero){
+        if(!pedidos.containsKey(numero)){
+            throw new IllegalArgumentException("Pedido enexistente!");
+        }
+
+        pedidos.remove(numero);
+    }
+
     public Collection<Pedido> getPedidos() {
         return pedidos.values();
     }

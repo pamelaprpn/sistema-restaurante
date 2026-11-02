@@ -37,6 +37,17 @@ public class Pedido {
         itens.add(itemCardapio);
     }
 
+    public void removerItem(int opcao){
+        if(opcao < 1 || opcao > itens.size()){
+            throw new IllegalArgumentException("Item inexistente!");
+        }
+
+        itens.remove(opcao - 1);
+
+    }
+
+
+
     public ArrayList<ItemCardapio> getItens(){
         return itens;
     }
@@ -50,5 +61,7 @@ public class Pedido {
         return total;
 
     }
+
+
 
 }
