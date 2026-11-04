@@ -183,7 +183,12 @@ O projeto utiliza **JUnit 5** para testar regras de negócio, incluindo:
 - Personalização dos ingredientes.
 - Gerenciamento de pedidos.
 - Cancelamento de pedidos.
-- Financeiro - Pendente.
+- Validação de transações financeiras.
+- Cálculo do valor pago, incluindo gorjetas.
+- Validação de valores e números de pedidos inválidos.
+- Verificação de `equals()` e `hashCode()` para identificar transações duplicadas.
+- Registro de pagamentos e prevenção de duplicidades.
+- Validação do padrão Singleton na classe `Caixa`.
 
 ## 💡 Conceitos aplicados
 
